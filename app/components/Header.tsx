@@ -16,9 +16,9 @@ const Header = ({ getName, symbol }: Params) => {
   const submitHandler = (e: FormEvent) => {
     e.preventDefault();
     getName(value);
-
   }
 
+  
   return (
     <Container
     component="header"
