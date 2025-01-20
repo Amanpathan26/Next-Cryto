@@ -1,11 +1,13 @@
+
 interface ApiData {
-    image: string;
-    name: string;
-    symbol: string;
-    current_price: number;
-    market_cap: number;
-    total_volume: number;
-  }
+  id: string; 
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  market_cap: number;
+  total_volume: number;
+}
   
   const fetchUserData = async (): Promise<ApiData[] | null> => {
     const url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd';
@@ -33,7 +35,7 @@ interface ApiData {
     }
   };
 
-  export const ApiData = async (): Promise<ApiData[] | null> => {
+  export const apiData = async (): Promise<ApiData[] | null> => {
     return await fetchUserData();
   };
   

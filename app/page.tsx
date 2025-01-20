@@ -6,12 +6,12 @@ import { useEffect, useState } from "react";
 import { Box, CircularProgress, Container, List, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import Image from "next/image";
 import { KeyboardBackspace } from "@mui/icons-material";
-import { ApiData } from './Data/ApiData';
+import { apiData } from './Data/apiData';
 
 
 
-interface FetchedData {
-  id: string;
+interface ApiData {
+  id: string; 
   symbol: string;
   name: string;
   image: string;
@@ -23,21 +23,28 @@ interface FetchedData {
 export default function Home() {
 
 
-  const [filterData, setFilterData] = useState<FetchedData | null>(null);
-  const [fetchedData, setFetchedData] = useState<FetchedData[]>([]);
+  const [filterData, setFilterData] = useState<ApiData | null>(null);
+  const [fetchedData, setFetchedData] = useState<ApiData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [slide, setSlide] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      const data = await ApiData();
-      if (data) setFetchedData(data);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const data = await apiData();
+        if (data !== null) {
+          setFetchedData(data); 
+          setLoading(false);
+        } 
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
     };
-
     fetchData();
   }, []);
+  
+
 
   const getName = async (inputName: string): Promise<void> => {
     const filteredData = fetchedData.find(item => item.name.toLowerCase() === inputName.toLowerCase());
@@ -103,6 +110,7 @@ export default function Home() {
               >
                 <li>
                   <Image
+                    loading="lazy"
                     src={filterData.image}
                     alt={filterData.name}
                     width={50}
