@@ -1,101 +1,226 @@
+'use client';
+
+import Header from "./components/Header";
+import React from 'react'
+import { useEffect, useState } from "react";
+import { Box, CircularProgress, Container, List, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import Image from "next/image";
+import { KeyboardBackspace } from "@mui/icons-material";
+import { ApiData } from './Data/ApiData';
+
+
+
+interface FetchedData {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  market_cap: number;
+  total_volume: number;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+  const [filterData, setFilterData] = useState<FetchedData | null>(null);
+  const [fetchedData, setFetchedData] = useState<FetchedData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [slide, setSlide] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const data = await ApiData();
+      if (data) setFetchedData(data);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  const getName = async (inputName: string): Promise<void> => {
+    const filteredData = fetchedData.find(item => item.name.toLowerCase() === inputName.toLowerCase());
+    setFilterData(filteredData || null);
+  };
+
+  return (
+    <div>
+
+      <Header symbol={filterData?.symbol || "Coin"} getName={getName} />
+
+      <Container
+        component="main"
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          height: "85vh",
+          position: "relative",
+          overflow: "hidden"
+        }}
+      >
+        <Container
+          component="div"
+          sx={{
+            width: "50%",
+            height: "100%",
+            position: "relative",
+            padding: '0',
+            alignContent: "center",
+            border: "1px solid",
+            borderRadius: "1rem 0 0 1rem",
+            backgroundImage: "linear-gradient(0deg, #FFDEE9 0%, #B5FFFC 100%)",
+            "@media (max-width:768px)": {
+              position: "absolute",
+              inset: "0 0 0 0",
+              width: "calc(100% - 30px)"
+            }
+          }}
+        >
+          <Box
+            sx={{
+              borderRadius: "8px",
+              padding: "1rem",
+              margin: "0 auto",
+              width: "18rem",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              backgroundImage: "linear-gradient(0deg, #ffffff50, #ffffff80)",
+              backdropFilter: "blur(10px)",
+              "@media (max-width:600px)": {
+                fontSize: '14px',
+                width: "14rem"
+              }
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            {filterData ? (
+              <List
+                component="ul"
+                sx={{
+                  listStyle: "none",
+                  padding: 0,
+
+                }}
+              >
+                <li>
+                  <Image
+                    src={filterData.image}
+                    alt={filterData.name}
+                    width={50}
+                    height={50}
+                    style={{ borderRadius: "50%", margin: "0 auto" }}
+                  />
+                </li>
+                <li>
+                  <strong>Name:</strong> {filterData.name}
+                </li>
+                <li>
+                  <strong>Symbol:</strong> {filterData.symbol || "Unknown"}
+                </li>
+                <li>
+                  <strong>Current Price:</strong> ${filterData.current_price || "Unknown"}
+                </li>
+                <li>
+                  <strong>Market Cap:</strong> ${filterData.market_cap || "Unknown"}
+                </li>
+                <li>
+                  <strong>Total Volume:</strong> ${filterData.total_volume || "Unknown"}
+                </li>
+              </List>
+            ) : (
+              <p>Please either search or choose a coin from the list.</p>
+            )}
+          </Box>
+
+          <KeyboardBackspace
+            onClick={() => { setSlide(!slide) }}
+            sx={{
+              position: "absolute",
+              top: "0",
+              right: '0',
+              zIndex: "9999",
+              cursor: "pointer",
+              display: "none",
+              backgroundColor: "black",
+              color: "#fff",
+              transition: "all .5s",
+              borderRadius: slide ? "0 7px 0 0" : "7px 0 0 7px",
+              transform: slide ? "rotate(180deg)" : "rotate(0deg)",
+              "@media (max-width:768px)": {
+                display: "block",
+
+              }
+            }}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        </Container>
+
+        <Container
+          component="div"
+          sx={{
+            border: "1px solid black",
+            position: "relative",
+            width: '50%',
+            overflow: "auto",
+            transition: "all .5s ease-in-out",
+            backgroundColor: "#fff",
+            "@media (max-width:768px)": {
+              width: '100%',
+              border: "1px solid black",
+              right: slide ? "0" : "-110%",
+            }
+          }}
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          {loading ? (
+            <Box sx={{ display: 'grid', placeItems: "center", height: "100%" }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Table
+              stickyHeader
+              aria-label="sticky table"
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{
+                    "@media (max-width:320px)": {
+                      padding: '10px 0'
+                    }
+                  }}>Name</TableCell>
+                  <TableCell sx={{
+                    "@media (max-width:320px)": {
+                      padding: '10px 0'
+                    }
+                  }}>Current Price</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {fetchedData.map((item, i) => (
+                  <TableRow
+                    key={i}
+                    hover
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setFilterData(item);
+                      setSlide(false);
+                    }}
+                  >
+                    <TableCell sx={{
+                      "@media (max-width:320px)": {
+                        padding: '0'
+                      }
+                    }}>{item.name}</TableCell>
+                    <TableCell sx={{
+                      "@media (max-width:320px)": {
+                        padding: '10px 0'
+                      }
+                    }}>${item.current_price.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </Container>
+
+      </Container>
     </div>
   );
 }
