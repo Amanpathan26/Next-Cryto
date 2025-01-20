@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Box, CircularProgress, Container, List, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import Image from "next/image";
 import { KeyboardBackspace } from "@mui/icons-material";
-import { apiData } from './Data/apiData';
+import { apiData } from './apidata/apiData';
 
 
 
